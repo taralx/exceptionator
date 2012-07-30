@@ -16,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 
 public class Exceptionator {
@@ -102,7 +103,9 @@ public class Exceptionator {
 		for (Map.Entry<String, MethodInfo> entry : map.entrySet()) {
 			String key = entry.getKey();
 			MethodInfo methodInfo = entry.getValue();
-			map.updateParents(key, methodInfo.exceptions);
+			if ((methodInfo.access & Opcodes.ACC_STATIC) == 0) {
+				map.updateParents(key, methodInfo.exceptions);
+			}
 		}
 
 		/*
@@ -137,7 +140,9 @@ public class Exceptionator {
 						}
 						if (methodInfo.exceptions.addAll(calleeExceptions)) {
 							retry = true;
-							map.updateParents(key, calleeExceptions);
+							if ((methodInfo.access & Opcodes.ACC_STATIC) == 0) {
+								map.updateParents(key, calleeExceptions);
+							}
 						}
 					}
 				}

@@ -17,11 +17,11 @@ public class MethodMap {
 	public MethodMap(ClassHierarchy ch) {
 		this.ch = ch;
 	}
-	
+
 	public MethodInfo get(String key) {
 		return methodMap.get(key);
 	}
-	
+
 	public Set<Entry<String, MethodInfo>> entrySet() {
 		return methodMap.entrySet();
 	}
@@ -31,7 +31,7 @@ public class MethodMap {
 		methodMap.put(key, mi);
 		return mi;
 	}
-	
+
 	public void updateParents(String key, Collection<String> calleeExceptions) {
 		int dot = key.indexOf('.');
 		String className = key.substring(0, dot);
@@ -49,8 +49,9 @@ public class MethodMap {
 				propagate = true;
 			} else {
 				// private methods aren't visible to subclasses
+				//
 				// TODO Handle package visibility?
-				if ((mi.access & Opcodes.ACC_PRIVATE) != 0) {
+				if ((mi.access & (Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL | Opcodes.ACC_STATIC)) != 0) {
 					continue;
 				}
 				propagate = mi.exceptions.addAll(calleeExceptions);
