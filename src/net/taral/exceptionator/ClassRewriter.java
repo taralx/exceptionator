@@ -1,13 +1,38 @@
 package net.taral.exceptionator;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+
+class SuperclassClassVisitor extends ClassVisitor {
+	private String superClass;
+
+	private SuperclassClassVisitor() {
+		super(Opcodes.ASM4);
+	}
+	
+	@Override
+	public void visit(int version, int access, String name, String signature,
+			String superName, String[] interfaces) {
+		superClass = superName;
+	}
+
+	public static String getSuperClass(InputStream is) throws IOException {
+		ClassReader cr = new ClassReader(is);
+		SuperclassClassVisitor cv = new SuperclassClassVisitor();
+		cr.accept(cv, 0);
+		return cv.superClass;
+	}
+}
 
 public class ClassRewriter extends ClassWriter {
 	private ZipFile zf;
